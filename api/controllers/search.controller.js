@@ -3,7 +3,7 @@ import { parseUserQuery } from "../middleware/aiService.js";
 
 export const searchPlaces = async (req, res) => {
   try {
-    const { query } = req.body;
+    const { query, location } = req.body;
 
     if (!query) {
       return res.status(400).json({ error: "Query is required" });
@@ -17,15 +17,23 @@ export const searchPlaces = async (req, res) => {
     }
 
     let sql = `
-      SELECT p.*, ARRAY_AGG(t.name) as tags
+      SELECT p.*,(
+  6371 * acos(
+    cos(radians($1)) *
+    cos(radians(p.lat)) *
+    cos(radians(p.lng) - radians($2)) +
+    sin(radians($1)) *
+    sin(radians(p.lat))
+  )
+) AS distance, ARRAY_REMOVE(ARRAY_AGG(DISTINCT t.name), NULL) as tags
       FROM places p
       LEFT JOIN place_tags pt ON p.id = pt.place_id
-      LEFT JOIN tags t ON pt.tag_id = t.id
+      LEFT JOIN tags t ON pt.tag_id = t.id 
     `;
 
     let conditions = [];
-    let values = [];
-    let index = 1; // evita SQL injection usando parámetros preparados
+    let values = [location.lat,location.lng];
+    let index = 3; // evita SQL injection usando parámetros preparados
 
     // 🔹 filtro por tipo
     if (filters.type) {
@@ -41,7 +49,13 @@ export const searchPlaces = async (req, res) => {
 
     // 🔹 filtro por tags
     if (filters.tags && filters.tags.length > 0) {
-      conditions.push(`t.name = ANY($${index++})`);
+      conditions.push(`EXISTS (
+        SELECT 1
+        FROM place_tags pt_filter
+        JOIN tags t_filter ON pt_filter.tag_id = t_filter.id
+        WHERE pt_filter.place_id = p.id
+          AND t_filter.name = ANY($${index++})
+      )`);
       values.push(filters.tags);
     }
 
@@ -50,12 +64,37 @@ export const searchPlaces = async (req, res) => {
     }
 
     sql += " GROUP BY p.id LIMIT 10";
-
+    
     const result = await pool.query(sql, values);
+    
+    console.log(result)
+    //Se encarga de filtrar inteligentemente los resultados por conveniencia al usuario y que matchean los tags y el de distancia mas cercana
+      const ranked = result.rows.map(place => {
+      let score = 0;
+
+      // match de tags
+      const matchTags = filters.tags.filter(tag =>
+        place.tags.includes(tag)
+      ).length;
+
+      score += matchTags * 5;
+
+      // distancia (mientras más cerca mejor)
+      if (place?.distance) {
+        const distanceScore = Math.max(0, 10 - place.distance);
+        score += distanceScore;
+      }
+
+      return { ...place, score };
+      });
+
+
+      //Ordena los resultados
+      ranked.sort((a, b) => b.score - a.score);
 
     res.json({
       filters,
-      results: result.rows
+      results: ranked.slice(0,5)
     });
 
   } catch (err) {

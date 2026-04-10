@@ -5,7 +5,7 @@ export const getPlaces = async (req, res) => {
     const result = await pool.query(`
       SELECT * from places
     `);
-
+      
     res.status(200).json(result.rows);
   } catch (err) {
     console.error(err);
