@@ -1,109 +1,50 @@
-
+import { useState } from "react";
+import axios from "axios";
 import "./Results.css";
-import React, { useEffect, useState } from "react";
 
-function Results({ results, fallback, tags }) {
-  const [distancesById, setDistancesById] = useState({});
+const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || "/api" });
+const priceLabel = (price) => "·".repeat(Math.max(1, Number(price) || 1));
+const readable = (value) => value?.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 
-  const capitalizeTag = (tag) => {
-    if (typeof tag !== "string" || tag.length === 0) {
-      return tag;
+function Results({ results, fallback, explanation }) {
+  const [selectedPlace, setSelectedPlace] = useState(null);
+  const [detailError, setDetailError] = useState("");
+
+  const openDetail = async (place) => {
+    setDetailError("");
+    setSelectedPlace(place);
+    try {
+      const response = await api.get(`/places/${place.id}`);
+      setSelectedPlace(response.data);
+    } catch {
+      setDetailError("No pudimos cargar todos los detalles; mostrando la información disponible.");
     }
-
-    return tag.charAt(0).toUpperCase() + tag.slice(1);
   };
 
-    // Calcula la distancia entre dos puntos geograficos (formula de Haversine).
-    const calculateDistance = (lat1, lon1, lat2, lon2) => {
-        const R = 6371; // Earth's radius in km
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = 
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return (R * c).toFixed(2);
-    };
-
-    // Obtiene la ubicacion actual del usuario y devuelve la distancia al lugar.
-    const getDistance = (place) => {
-      if (navigator.geolocation && place.lat && place.lng) {
-            return new Promise((resolve) => {
-                navigator.geolocation.getCurrentPosition((position) => {
-                    const distance = calculateDistance(
-                        position.coords.latitude,
-                        position.coords.longitude,
-              place.lat,
-              place.lng
-                    );
-                    resolve(distance);
-                }, () => resolve("N/A"));
-            });
-        }
-        return Promise.resolve("N/A");
-    };
-
-    useEffect(() => {
-      let isCancelled = false;
-
-      // Recalcula distancias cada vez que cambia la lista de resultados.
-      const loadDistances = async () => {
-        const entries = await Promise.all(
-          results.map(async (place) => [place.id, await getDistance(place)])
-        );
-
-        if (!isCancelled) {
-          setDistancesById(Object.fromEntries(entries));
-        }
-      };
-
-      loadDistances();
-
-      return () => {
-        isCancelled = true;
-      };
-    }, [results]);
-
-    console.log(results)
-    /* tags style: p{
-        
-    }*/
-    return(
-        
-          
-          <>
-          {results.length > 0 && (
-
-            <p className="placesRec">Te recomiendo estos lugares porque coinciden con lo que buscas: {tags?.map(capitalizeTag).join(", ")}</p>
-          )}
-        {results.map((place) => (
-          <div className={results.length > 0 ? "placeCard active" : "placeCard"} key={place.id}>
-          <div className="placeImg">
-            <img src="/noimg.jpg" alt={place.name} />
-          </div>
-          <div className="placeInfo">
-          <div>
-            <h3>{place.name}</h3>
-            {place.tags?.map(tag => <p className="tags">{capitalizeTag(tag)}</p>)}
-            <p>Precio: {place.avg_price}</p>
-          </div>
-          </div>
-          <div className="placeDetails">
-            <p>Tipo: {place.type}</p>
-            
-            <p>
-              {/* Muestra estado de carga, error geolocalizacion o distancia en km. */}
-               
-                 {fallback ?  "Distancia al centro SD" : "Distancia"}: { place.distance.toFixed(2) } km
-            </p>
-            
-          </div>
-          </div>
-        ))}
-        </>
-
-      
-    )
+  if (!results.length) return null;
+  return <section className="results-section" aria-live="polite">
+    <p className="placesRec">{explanation}</p>
+    <div className="results-grid">
+      {results.map((place) => <article className="placeCard" key={place.id}>
+        <div className="placeInfo">
+          <div className="place-topline"><span>{readable(place.type)}</span><span className="price">{priceLabel(place.avg_price)}</span></div>
+          <h2>{place.name}</h2>
+          <div className="tag-list">{(place.tags || []).map((tag) => <span className="tag" key={tag}>{readable(tag)}</span>)}</div>
+          <p className="distance">{fallback ? "Desde el centro de SD" : "A tu distancia"}: {Number(place.distance).toFixed(1)} km</p>
+          <button className="detail-button" type="button" onClick={() => openDetail(place)}>Ver detalles</button>
+        </div>
+      </article>)}
+    </div>
+    {selectedPlace && <div className="modal-backdrop" role="presentation" onMouseDown={() => setSelectedPlace(null)}>
+      <section className="place-modal" role="dialog" aria-modal="true" aria-labelledby="place-title" onMouseDown={(event) => event.stopPropagation()}>
+        <button className="modal-close" type="button" onClick={() => setSelectedPlace(null)} aria-label="Cerrar detalles">×</button>
+        <p className="eyebrow">{readable(selectedPlace.type)}</p><h2 id="place-title">{selectedPlace.name}</h2>
+        <p>Precio promedio: {priceLabel(selectedPlace.avg_price)} ({selectedPlace.avg_price}/4)</p>
+        <div className="tag-list">{(selectedPlace.tags || []).map((tag) => <span className="tag" key={tag}>{readable(tag)}</span>)}</div>
+        {detailError && <p className="detail-error">{detailError}</p>}
+      </section>
+    </div>}
+  </section>;
 }
+
 export default Results;

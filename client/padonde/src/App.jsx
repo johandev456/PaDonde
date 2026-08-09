@@ -1,6 +1,3 @@
-import { useState } from "react";
-import axios from "axios";
-import { Children } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./routes/layout/layout";
 import HomePage from "./routes/homePage/homePage";
