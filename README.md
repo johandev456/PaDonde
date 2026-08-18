@@ -1,16 +1,44 @@
-# Pa' Dónde
+# Local Discovery AI
 
-MVP de recomendaciones de lugares en Santo Domingo. Interpreta búsquedas conversacionales, filtra y ordena lugares por coincidencia de tags, precio y cercanía.
+An AI-powered local discovery platform that helps users find restaurants, bars, and cafés based on what they actually want, using natural-language search instead of traditional filters alone.
 
-## Ejecutar en desarrollo
+## Overview
 
-1. En `api`, crea `.env` a partir de `.env.example` y configura PostgreSQL (y opcionalmente Gemini).
-2. Inicia la API: `cd api && npm run dev`.
-3. En otra terminal inicia el cliente: `cd client/padonde && npm run dev`.
-4. Abre la URL que indique Vite (normalmente `http://localhost:5173`).
+Local Discovery AI allows users to describe what they are looking for in their own words. For example:
 
-El cliente redirige `/api` a `http://localhost:3000` durante desarrollo. Para desplegar el cliente por separado, define `VITE_API_URL` con la URL de la API más el sufijo `/api`.
+> "I want a quiet and affordable restaurant for a date."
 
-## Esquema de datos esperado
+The application uses Google Gemini to understand the user's request and transform it into structured search criteria. The backend then uses those criteria to search a PostgreSQL database and rank places based on relevance, price, and distance.
 
-La API usa las tablas existentes `places`, `tags` y `place_tags`. `places` debe contener al menos `id`, `name`, `type`, `lat`, `lng` y `avg_price`; los tags se relacionan mediante `place_tags`.
+The application also supports location-aware recommendations by using the user's current location when available, with a fallback to the center of Santo Domingo when location access is unavailable.
+
+## Features
+
+- Natural-language search powered by Google Gemini
+- AI-powered intent and preference extraction
+- Restaurant, bar, and café discovery
+- Tag-based place matching
+- Price-based filtering
+- Location-aware recommendations
+- Distance calculation between users and places
+- Relevance-based ranking system
+- Fallback location for users who do not provide their location
+- REST API backend
+- Responsive web interface
+
+## How It Works
+
+The application follows a simple pipeline:
+
+```text
+User Query
+    ↓
+Google Gemini
+    ↓
+Structured Search Filters
+    ↓
+PostgreSQL Query
+    ↓
+Relevance & Distance Ranking
+    ↓
+Recommended Places
