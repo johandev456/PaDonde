@@ -1,4 +1,4 @@
-# Local Discovery AI
+# Pa`Donde
 
 An AI-powered local discovery platform that helps users find restaurants, bars, and cafés based on what they actually want, using natural-language search instead of traditional filters alone.
 
