@@ -7,7 +7,8 @@
     "start": "node app.js",
     "dev": "node --watch app.js",
     "test": "node --test",
-    "import": "node db/import_from_osm.js"
+    "import": "node db/import_from_osm.js",
+    "fetch-photos": "node db/enrich_real_photos.js"
   },
   "repository": {
     "type": "git",

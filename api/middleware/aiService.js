@@ -41,7 +41,7 @@ export const parseUserQuery = async (message) => {
   if (!process.env.GEMINI_API_KEY) return localFallback(message);
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.0-flash" });
+  const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.5-flash" });
   const prompt = `Eres un sistema que convierte texto en filtros para una base de datos de lugares en Santo Domingo.
 Devuelve SOLO JSON válido, sin explicación ni bloques Markdown.
 Formato:

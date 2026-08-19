@@ -14,6 +14,7 @@ export const getPlace = async (req, res) => {
   try {
     const placeId = Number(req.params.id);
     if (!Number.isInteger(placeId) || placeId < 1) return res.status(400).json({ error: "Invalid place id" });
+
     const result = await pool.query(
       `SELECT p.*,
         ARRAY_REMOVE(ARRAY_AGG(DISTINCT t.name), NULL) AS tags,
@@ -27,8 +28,18 @@ export const getPlace = async (req, res) => {
       GROUP BY p.id, pd.description, pd.instagram, pd.website, pd.menu, pd.schedule, pd.phone, pd.email, pd.address`,
       [placeId],
     );
+
     if (!result.rows[0]) return res.status(404).json({ error: "Place not found" });
-    res.status(200).json(result.rows[0]);
+
+    const place = result.rows[0];
+
+    const imagesResult = await pool.query(
+      "SELECT id, url FROM place_images WHERE place_id = $1 ORDER BY id ASC",
+      [placeId]
+    );
+    place.images = imagesResult.rows;
+
+    res.status(200).json(place);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error obteniendo el lugar" });
@@ -64,5 +75,22 @@ export const delPlace = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error borrando el lugar" });
+  }
+};
+
+export const addPlaceImage = async (req, res) => {
+  try {
+    const placeId = Number(req.params.id);
+    if (!Number.isInteger(placeId) || placeId < 1) return res.status(400).json({ error: "Invalid place id" });
+    const { url } = req.body;
+    if (!url || typeof url !== "string" || !url.trim()) return res.status(400).json({ error: "url is required" });
+    const result = await pool.query(
+      "INSERT INTO place_images (place_id, url) VALUES ($1, $2) RETURNING *",
+      [placeId, url.trim()]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error agregando imagen" });
   }
 };
