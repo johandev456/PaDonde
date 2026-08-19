@@ -1,12 +1,155 @@
-.home-page { max-width: 1060px; margin: 0 auto; padding: 56px 24px 72px; }
-.hero-section { max-width: 720px; margin: 0 auto; text-align: center; }
-.eyebrow { color: #e58242; font-size: .76rem; font-weight: 800; letter-spacing: .12em; margin: 0 0 10px; text-transform: uppercase; }
-.subtitle { color: #716a65; font-size: 1.1rem; margin: 0 auto 28px; max-width: 540px; }
-.search-form { display: flex; gap: 10px; }
-.search-form input { background: #fff; border: 1px solid #d8d1cc; border-radius: 14px; box-sizing: border-box; color: #2a2522; flex: 1; font: inherit; min-width: 0; padding: 15px 16px; }
-.btnBuscar { background: #e36d2d; border: 0; border-radius: 14px; color: #fff; cursor: pointer; font: inherit; font-weight: 700; padding: 0 22px; }
-.btnBuscar:disabled { cursor: wait; opacity: .65; }
-.location-note { color: #8a837d; font-size: .85rem; margin-top: 12px; }
-.error-message { background: #fff0ed; border: 1px solid #f4c3b7; border-radius: 10px; color: #9d2f1c; margin: 24px auto 0; max-width: 720px; padding: 12px 16px; }
-.sr-only { height: 1px; margin: -1px; overflow: hidden; position: absolute; width: 1px; clip: rect(0, 0, 0, 0); }
-@media (max-width: 600px) { .home-page { padding: 36px 16px; } .search-form { flex-direction: column; } .btnBuscar { min-height: 49px; } }
+.home-page {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 56px 24px 72px;
+}
+
+.hero-section {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.eyebrow {
+  color: #e58242;
+  font-size: .76rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  color: #716a65;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  margin: 0 auto 28px;
+  max-width: 580px;
+}
+
+/* ── Formulario de Búsqueda ───────────────────────────────────────── */
+.search-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.input-wrapper {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+
+.search-form input {
+  background: #fff;
+  border: 1.5px solid #d8d1cc;
+  border-radius: 16px;
+  box-sizing: border-box;
+  color: #2a2522;
+  font: inherit;
+  font-size: 1rem;
+  width: 100%;
+  padding: 16px 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .03);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.search-form input:focus {
+  outline: none;
+  border-color: #e36d2d;
+  box-shadow: 0 0 0 4px rgba(227, 109, 45, .15);
+}
+
+.search-form input::placeholder {
+  color: #9a928c;
+  transition: opacity .3s ease;
+  font-size: .95rem;
+}
+
+.btnBuscar {
+  background: #e36d2d;
+  border: 0;
+  border-radius: 16px;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 16px 26px;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(227, 109, 45, .25);
+  transition: transform .15s ease, background-color .15s ease;
+}
+
+.btnBuscar:hover:not(:disabled) {
+  background: #d05c20;
+  transform: translateY(-1px);
+}
+
+.btnBuscar:disabled {
+  cursor: wait;
+  opacity: .65;
+}
+
+/* ── Chips de Sugerencias Interactivas ───────────────────────────── */
+.suggestion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.chip {
+  background: #fff;
+  border: 1px solid #e5ddd7;
+  border-radius: 999px;
+  color: #5f5752;
+  cursor: pointer;
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 500;
+  padding: 7px 14px;
+  transition: all .2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .02);
+}
+
+.chip:hover {
+  background: #fff3ea;
+  border-color: #e36d2d;
+  color: #c45118;
+  transform: translateY(-1px);
+}
+
+.location-note {
+  color: #8a837d;
+  font-size: .85rem;
+  margin-top: 18px;
+}
+
+.error-message {
+  background: #fff0ed;
+  border: 1px solid #f4c3b7;
+  border-radius: 12px;
+  color: #9d2f1c;
+  margin: 24px auto 0;
+  max-width: 760px;
+  padding: 12px 16px;
+}
+
+.sr-only {
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+  clip: rect(0, 0, 0, 0);
+}
+
+@media (max-width: 600px) {
+  .home-page { padding: 36px 16px; }
+  .search-form { flex-direction: column; }
+  .input-wrapper { width: 100%; }
+  .btnBuscar { width: 100%; min-height: 52px; }
+  .suggestion-chips { justify-content: flex-start; overflow-x: auto; padding-bottom: 4px; }
+}
