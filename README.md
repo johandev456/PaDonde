@@ -1,6 +1,8 @@
-# Pa' Dónde
+# Pa`Donde
 
 MVP de recomendaciones de lugares en Santo Domingo. Interpreta búsquedas conversacionales con IA (Gemini), filtra y ordena lugares por coincidencia de tags, precio y cercanía.
+
+An AI-powered local discovery platform that helps users find restaurants, bars, and cafes based on what they actually want, using natural-language search instead of traditional filters alone.
 
 ## Stack
 
@@ -10,8 +12,7 @@ MVP de recomendaciones de lugares en Santo Domingo. Interpreta búsquedas conver
 | Backend | Express 5, Node.js (ESM) |
 | Base de datos | PostgreSQL 18 |
 | IA | Gemini 2.0 Flash (con fallback local si no hay API Key) |
-
-## Ejecutar en desarrollo
+## Overview
 
 ### Pre-requisitos
 - Node.js ≥ 20
