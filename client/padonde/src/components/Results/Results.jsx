@@ -39,8 +39,16 @@ function Results({ results, fallback, explanation }) {
       <section className="place-modal" role="dialog" aria-modal="true" aria-labelledby="place-title" onMouseDown={(event) => event.stopPropagation()}>
         <button className="modal-close" type="button" onClick={() => setSelectedPlace(null)} aria-label="Cerrar detalles">×</button>
         <p className="eyebrow">{readable(selectedPlace.type)}</p><h2 id="place-title">{selectedPlace.name}</h2>
-        <p>Precio promedio: {priceLabel(selectedPlace.avg_price)} ({selectedPlace.avg_price}/4)</p>
+        <p className="modal-price">Precio: <span className="price">{priceLabel(selectedPlace.avg_price)}</span> <span className="price-num">({selectedPlace.avg_price}/4)</span></p>
         <div className="tag-list">{(selectedPlace.tags || []).map((tag) => <span className="tag" key={tag}>{readable(tag)}</span>)}</div>
+        {selectedPlace.description && <p className="modal-description">{selectedPlace.description}</p>}
+        <dl className="modal-details">
+          {selectedPlace.address && <><dt>📍 Dirección</dt><dd>{selectedPlace.address}</dd></>}
+          {selectedPlace.schedule && <><dt>🕐 Horario</dt><dd>{selectedPlace.schedule}</dd></>}
+          {selectedPlace.phone && <><dt>📞 Teléfono</dt><dd><a href={`tel:${selectedPlace.phone}`}>{selectedPlace.phone}</a></dd></>}
+          {selectedPlace.instagram && <><dt>📸 Instagram</dt><dd><a href={`https://instagram.com/${selectedPlace.instagram.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">@{selectedPlace.instagram.replace(/^@/, "")}</a></dd></>}
+          {selectedPlace.website && <><dt>🌐 Web</dt><dd><a href={selectedPlace.website} target="_blank" rel="noopener noreferrer">{selectedPlace.website}</a></dd></>}
+        </dl>
         {detailError && <p className="detail-error">{detailError}</p>}
       </section>
     </div>}

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "test": "node --test"
+    "test": "node --test",
+    "import": "node db/import_from_osm.js"
   },
   "repository": {
     "type": "git",

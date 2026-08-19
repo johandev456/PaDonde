@@ -14,9 +14,19 @@ export const getPlace = async (req, res) => {
   try {
     const placeId = Number(req.params.id);
     if (!Number.isInteger(placeId) || placeId < 1) return res.status(400).json({ error: "Invalid place id" });
-    const result = await pool.query(`SELECT p.*, ARRAY_REMOVE(ARRAY_AGG(DISTINCT t.name), NULL) AS tags
-      FROM places p LEFT JOIN place_tags pt ON p.id = pt.place_id LEFT JOIN tags t ON pt.tag_id = t.id
-      WHERE p.id = $1 GROUP BY p.id`, [placeId]);
+    const result = await pool.query(
+      `SELECT p.*,
+        ARRAY_REMOVE(ARRAY_AGG(DISTINCT t.name), NULL) AS tags,
+        pd.description, pd.instagram, pd.website, pd.menu,
+        pd.schedule, pd.phone, pd.email, pd.address
+      FROM places p
+      LEFT JOIN place_tags pt ON p.id = pt.place_id
+      LEFT JOIN tags t ON pt.tag_id = t.id
+      LEFT JOIN place_details pd ON p.id = pd.place_id
+      WHERE p.id = $1
+      GROUP BY p.id, pd.description, pd.instagram, pd.website, pd.menu, pd.schedule, pd.phone, pd.email, pd.address`,
+      [placeId],
+    );
     if (!result.rows[0]) return res.status(404).json({ error: "Place not found" });
     res.status(200).json(result.rows[0]);
   } catch (error) {
